@@ -1,0 +1,2334 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>A-Math Bingo Mastery - Mobile & Random Pool Edition</title>
+  <style>
+    :root {
+      --bg-main: #1e293b;
+      --bg-board: #0f172a;
+      --bg-card: #334155;
+      --tile-rack-bg: #fef3c7;
+      --tile-rack-border: #f59e0b;
+      --tile-rack-text: #78350f;
+      --tile-fixed-bg: #6366f1;
+      --tile-fixed-border: #4338ca;
+      --tile-fixed-text: #ffffff;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-emerald: #10b981;
+      --accent-red: #ef4444;
+      --accent-amber: #f59e0b;
+      --accent-indigo: #818cf8;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Sarabun", "Prompt", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 12px 8px 24px;
+      overflow-x: hidden;
+    }
+
+    /* Container for mobile 480px max-width */
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Header Bar */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+    }
+
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      background: linear-gradient(135deg, #fef08a, #f59e0b, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      background: #334155;
+      border: 1px solid #475569;
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+      min-height: 36px;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.94);
+      background: #1e293b;
+    }
+
+    /* Stats Quick Bar */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: var(--radius-md);
+      padding: 8px;
+      text-align: center;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .stat-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .stat-val.warning {
+      color: var(--accent-red);
+    }
+
+    .stat-val.success {
+      color: var(--accent-emerald);
+    }
+
+    /* Level & Progress Banner */
+    .level-banner {
+      background: linear-gradient(135deg, #1e1b4b, #312e81);
+      border: 1px solid #4f46e5;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    }
+
+    .level-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .level-badge {
+      font-size: 13px;
+      font-weight: 800;
+      color: #c7d2fe;
+      background: rgba(99, 102, 241, 0.3);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+    }
+
+    .level-progress-dots {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #475569;
+      border: 2px solid #64748b;
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      background: #f59e0b;
+      border-color: #fbbf24;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+      transform: scale(1.1);
+    }
+
+    .dot.cleared {
+      background: #10b981;
+      border-color: #34d399;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+    }
+
+    .level-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+
+    .level-desc {
+      font-size: 11px;
+      color: #c7d2fe;
+      line-height: 1.4;
+    }
+
+    /* Board Area */
+    .board-section {
+      background: var(--bg-board);
+      border: 2px solid #334155;
+      border-radius: var(--radius-lg);
+      padding: 14px 8px 12px;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .board-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 6px;
+    }
+
+    .board-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .board-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 4px;
+      width: 100%;
+    }
+
+    .board-slot {
+      aspect-ratio: 1 / 1.15;
+      background: #1e293b;
+      border: 1.5px dashed #475569;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      overflow: visible;
+    }
+
+    .board-slot.selected {
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+      background: #1e3a5f;
+    }
+
+    .board-slot .slot-index {
+      position: absolute;
+      bottom: 2px;
+      font-size: 8px;
+      color: #64748b;
+      font-weight: 700;
+      pointer-events: none;
+    }
+
+    /* Tiles */
+    .tile {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Segoe UI", system-ui, monospace, sans-serif;
+      font-size: 19px;
+      font-weight: 900;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.3);
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .tile:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+    }
+
+    /* Fixed Board Tile (📌) */
+    .tile.fixed {
+      background: linear-gradient(145deg, #6366f1, #4338ca);
+      color: var(--tile-fixed-text);
+      border: 1.5px solid #818cf8;
+      cursor: not-allowed;
+      box-shadow: 0 3px 0 #312e81, 0 2px 6px rgba(99, 102, 241, 0.4);
+    }
+
+    .tile.fixed .pin-badge {
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      font-size: 9px;
+      line-height: 1;
+      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
+    }
+
+    /* Rack / Placed Player Tile */
+    .tile.player {
+      background: linear-gradient(145deg, #fffbeb, #fef3c7);
+      color: var(--tile-rack-text);
+      border: 1.5px solid var(--tile-rack-border);
+      box-shadow: 0 3px 0 #b45309, 0 2px 5px rgba(0, 0, 0, 0.25);
+    }
+
+    .tile.player.blank-assigned {
+      border-color: #8b5cf6;
+      background: linear-gradient(145deg, #f5f3ff, #ede9fe);
+      color: #5b21b6;
+    }
+
+    .tile.player .blank-star {
+      position: absolute;
+      top: 1px;
+      left: 2px;
+      font-size: 8px;
+      color: #8b5cf6;
+      font-weight: 800;
+    }
+
+    /* Rack Area */
+    .rack-section {
+      background: #0f172a;
+      border: 2px solid #334155;
+      border-radius: var(--radius-lg);
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .rack-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+    }
+
+    .rack-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .rack-count-badge {
+      background: #334155;
+      color: #f59e0b;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+
+    /* Rack Tiles Container (8 tiles) */
+    .rack-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+      min-height: 52px;
+      padding: 6px;
+      background: #1e293b;
+      border-radius: var(--radius-md);
+      border: 1px solid #334155;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+      align-items: center;
+    }
+
+    .rack-slot {
+      aspect-ratio: 1 / 1.15;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rack-slot.empty-rack {
+      border: 1px dashed #334155;
+      border-radius: var(--radius-sm);
+      opacity: 0.3;
+    }
+
+    /* Rack Helper Actions */
+    .rack-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+
+    .btn-secondary {
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid #475569;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 4px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      min-height: 38px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-secondary:active {
+      transform: scale(0.96);
+      background: #0f172a;
+    }
+
+    /* Big Bingo Button */
+    .bingo-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      padding: 14px 16px;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      box-shadow: 0 4px 0 #047857, 0 6px 16px rgba(16, 185, 129, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 52px;
+      transition: all 0.15s ease;
+    }
+
+    .bingo-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #047857;
+    }
+
+    /* Feedback & Diagnostics Box */
+    .feedback-box {
+      background: #0f172a;
+      border: 1.5px solid #334155;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.3s ease;
+      min-height: 72px;
+    }
+
+    .feedback-box.error {
+      border-color: var(--accent-red);
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .feedback-box.warning {
+      border-color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .feedback-box.success {
+      border-color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    .feedback-title {
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feedback-title.error {
+      color: #f87171;
+    }
+
+    .feedback-title.warning {
+      color: #fbbf24;
+    }
+
+    .feedback-title.success {
+      color: #34d399;
+    }
+
+    .feedback-msg {
+      font-size: 12px;
+      line-height: 1.45;
+      color: #e2e8f0;
+    }
+
+    .feedback-advice {
+      font-size: 11px;
+      line-height: 1.4;
+      color: #94a3b8;
+      border-top: 1px dashed rgba(255, 255, 255, 0.1);
+      padding-top: 5px;
+      margin-top: 2px;
+    }
+
+    /* Mistakes Penalty Tracker */
+    .penalty-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid #334155;
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .penalty-badges {
+      display: flex;
+      gap: 6px;
+    }
+
+    .penalty-badge {
+      font-size: 14px;
+      opacity: 0.25;
+      transition: all 0.2s ease;
+    }
+
+    .penalty-badge.struck {
+      opacity: 1;
+      filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.8));
+      transform: scale(1.15);
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #1e293b;
+      border: 1.5px solid #475569;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transform: translateY(20px);
+      transition: transform 0.2s ease;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-body {
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .btn-modal-cancel {
+      background: #334155;
+      color: #ffffff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 44px;
+    }
+
+    .btn-modal-confirm {
+      background: #ef4444;
+      color: #ffffff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 44px;
+    }
+
+    .btn-modal-primary {
+      background: #6366f1;
+      color: #ffffff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 44px;
+    }
+
+    /* Blank Tile Picker Dialog */
+    .blank-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .blank-pick-btn {
+      aspect-ratio: 1;
+      background: #334155;
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 800;
+      border: 1px solid #475569;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+    }
+
+    .blank-pick-btn:active {
+      background: #6366f1;
+      border-color: #818cf8;
+    }
+
+    /* Confetti Canvas */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* Animations */
+    @keyframes pulse-highlight {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+
+    .pulse-anim {
+      animation: pulse-highlight 0.4s ease;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header-bar">
+      <div class="app-brand">
+        <span class="brand-icon">🎲</span>
+        <div>
+          <h1 class="brand-title">A-Math Bingo Mastery</h1>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="sound-btn" class="icon-btn" title="เปิด/ปิดเสียง">🔊</button>
+        <button id="stats-btn" class="icon-btn" title="สถิติ">📊 สถิติ</button>
+        <button id="restart-btn" class="icon-btn" title="เริ่มเกมใหม่">🔄 รีเซ็ต</button>
+      </div>
+    </header>
+
+    <!-- Stats Quick Bar -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-label">สูงสุด</span>
+        <span id="stat-high-level" class="stat-val">Lv.1</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">บิงโกสะสม</span>
+        <span id="stat-bingos" class="stat-val success">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">ผิดในด่าน</span>
+        <span id="stat-wrongs" class="stat-val">0/3</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">ความแม่นยำ</span>
+        <span id="stat-accuracy" class="stat-val">100%</span>
+      </div>
+    </div>
+
+    <!-- Level Banner -->
+    <div class="level-banner">
+      <div class="level-header-row">
+        <div id="level-badge" class="level-badge">LEVEL 1</div>
+        <div class="level-progress-dots">
+          <span class="dot" id="dot-0"></span>
+          <span class="dot" id="dot-1"></span>
+          <span class="dot" id="dot-2"></span>
+        </div>
+      </div>
+      <div id="level-title" class="level-title">ฐานเลขบวกลบ 2-3 หลัก</div>
+      <div id="level-desc" class="level-desc">นำเบี้ย 8 ตัวบนแป้นมาประกอบกับเบี้ยล็อก 📌 รวมเป็นสมการยาว 9 ช่องให้ถูกต้อง</div>
+    </div>
+
+    <!-- Mistakes Warning Tracker -->
+    <div class="penalty-row">
+      <span style="color: #94a3b8; font-weight: 600;">⚠️ ข้อผิดพลาดซ้ำ (ครบ 3 ครั้งจะลด 1 เลเวล):</span>
+      <div class="penalty-badges">
+        <span class="penalty-badge" id="strike-1">❌</span>
+        <span class="penalty-badge" id="strike-2">❌</span>
+        <span class="penalty-badge" id="strike-3">❌</span>
+      </div>
+    </div>
+
+    <!-- Board Area (9 Slots) -->
+    <section class="board-section">
+      <div class="board-header">
+        <div class="board-title">
+          <span>📐 กระดานคำตอบ (9 ช่อง)</span>
+        </div>
+        <div style="font-size: 11px; color: #94a3b8;">
+          แตะเบี้ยเพื่อดึงกลับลงแป้น
+        </div>
+      </div>
+
+      <div class="board-grid" id="board-grid">
+        <!-- 9 Slots dynamically injected -->
+      </div>
+    </section>
+
+    <!-- Rack Area (8 Hand Tiles) -->
+    <section class="rack-section">
+      <div class="rack-header">
+        <div class="rack-title">
+          <span>🎒 แป้นเบี้ยมือผู้เล่น (8 ตัว)</span>
+        </div>
+        <span class="rack-count-badge" id="rack-count-badge">8/8</span>
+      </div>
+
+      <div class="rack-grid" id="rack-grid">
+        <!-- Rack slots dynamically injected -->
+      </div>
+
+      <div class="rack-actions">
+        <button id="recall-btn" class="btn-secondary">↩ คืนเบี้ยทั้งหมด</button>
+        <button id="shuffle-btn" class="btn-secondary">🔀 สลับเบี้ย</button>
+        <button id="hint-btn" class="btn-secondary">💡 คำใบ้</button>
+      </div>
+    </section>
+
+    <!-- Big Bingo Button -->
+    <button id="check-btn" class="bingo-btn">
+      <span>✨</span>
+      <span>ตรวจคำตอบ (Bingo!)</span>
+      <span>🎯</span>
+    </button>
+
+    <!-- Diagnostic Feedback & Advice Box -->
+    <div class="feedback-box" id="feedback-box">
+      <div class="feedback-title" id="feedback-title">
+        <span>💡</span>
+        <span>คำแนะนำการเล่น</span>
+      </div>
+      <div class="feedback-msg" id="feedback-msg">
+        วางเบี้ยทั้ง 8 ตัวลงบนกระดานให้เชื่อมต่อกับเบี้ยล็อก 📌 ให้ครบ 9 ช่อง แล้วกด "ตรวจคำตอบ (Bingo!)"
+      </div>
+      <div class="feedback-advice" id="feedback-advice" style="display: none;"></div>
+    </div>
+  </div>
+
+  <!-- Restart Confirmation Modal -->
+  <div class="modal-overlay" id="restart-modal">
+    <div class="modal-card">
+      <div class="modal-title">🔄 เริ่มเกมใหม่ทั้งหมด?</div>
+      <div class="modal-body">
+        คุณต้องการรีเซ็ตการเล่นกลับไปที่ <strong>Level 1 ข้อ 1/3</strong> ใช่หรือไม่?<br><br>
+        <em>หมายเหตุ: สถิติเลเวลสูงสุด และสถิติสะสมจะยังคงถูกบันทึกไว้อย่างปลอดภัย</em>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" id="cancel-restart-btn">ยกเลิก</button>
+        <button class="btn-modal-confirm" id="confirm-restart-btn">ยืนยันรีเซ็ต</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Detail Modal -->
+  <div class="modal-overlay" id="stats-modal">
+    <div class="modal-card">
+      <div class="modal-title">📊 สถิติการเล่น A-Math Bingo</div>
+      <div class="modal-body" id="stats-modal-content">
+        <!-- Injected dynamically -->
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-primary" id="close-stats-btn">ปิดหน้าต่าง</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demotion Penalty Modal -->
+  <div class="modal-overlay" id="penalty-modal">
+    <div class="modal-card">
+      <div class="modal-title" style="color: #f87171;">⚠️ กฎลงโทษตอบผิดครบ 3 ครั้ง!</div>
+      <div class="modal-body" id="penalty-modal-content">
+        คุณตอบผิดครบ 3 ครั้งในด่านนี้ จึงถูกปรับลดระดับลง 1 เลเวล เพื่อฝึกทบทวนพื้นฐานใหม่
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-primary" id="acknowledge-penalty-btn">เข้าใจแล้ว สู้ต่อ!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Level Clear Modal -->
+  <div class="modal-overlay" id="level-clear-modal">
+    <div class="modal-card">
+      <div class="modal-title" style="color: #34d399;">🎉 บิงโกปลดล็อกด่านใหม่!</div>
+      <div class="modal-body" id="level-clear-content">
+        ยินดีด้วย! คุณผ่านครบ 3 ข้อประจำเลเวลนี้แล้ว กำลังเข้าสู่ระดับความท้าทายขั้นถัดไป!
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-primary" id="next-level-btn">ไปด่านถัดไป 🚀</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blank Tile Selector Modal -->
+  <div class="modal-overlay" id="blank-modal">
+    <div class="modal-card">
+      <div class="modal-title">⭐ เลือกค่าเบี้ยว่าง (Blank Tile)</div>
+      <div class="modal-body">
+        เลือกตัวเลขหรือเครื่องหมายที่คุณต้องการให้เบี้ยว่างตัวนี้แทนที่:
+        <div class="blank-picker-grid" id="blank-picker-grid">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" id="cancel-blank-btn">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       A-MATH BINGO MASTERY: ENGINE & GAME LOGIC
+       10 Levels with Dynamic Generation of 100+ Equations per Level
+       Diagnostic Mathematical Parser, LocalStorage Tracking, 3-Mistakes Penalty
+       ========================================================================== */
+
+    // Sound FX Synthesizer via Web Audio API
+    class SoundFX {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playTone(freq, type, duration, delay = 0) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime + delay;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration);
+      }
+      place() {
+        this.playTone(520, 'sine', 0.08);
+      }
+      recall() {
+        this.playTone(380, 'sine', 0.08);
+      }
+      bingo() {
+        this.playTone(523.25, 'triangle', 0.15, 0.0);  // C5
+        this.playTone(659.25, 'triangle', 0.15, 0.1);  // E5
+        this.playTone(783.99, 'triangle', 0.15, 0.2);  // G5
+        this.playTone(1046.50, 'triangle', 0.35, 0.3); // C6
+      }
+      error() {
+        this.playTone(220, 'sawtooth', 0.15, 0.0);
+        this.playTone(180, 'sawtooth', 0.25, 0.15);
+      }
+      penalty() {
+        this.playTone(350, 'sawtooth', 0.2, 0.0);
+        this.playTone(280, 'sawtooth', 0.2, 0.18);
+        this.playTone(200, 'sawtooth', 0.4, 0.36);
+      }
+      levelUp() {
+        this.playTone(440, 'triangle', 0.12, 0.0);
+        this.playTone(554.37, 'triangle', 0.12, 0.1);
+        this.playTone(659.25, 'triangle', 0.12, 0.2);
+        this.playTone(880, 'triangle', 0.4, 0.3);
+      }
+    }
+
+    const sfx = new SoundFX();
+
+    // Level Information Metadata
+    const LEVEL_CONFIG = [
+      {
+        level: 1,
+        name: "ฐานเลขบวกลบ 2-3 หลัก",
+        desc: "โจทย์เน้นการรวมเลข 2 หลักและ 3 หลัก ด้วยการบวกและลบพื้นฐาน",
+        tip: "ลองสังเกตหลักหน่วยและหลักสิบเพื่อวางตัวเลขให้ได้ผลลัพธ์ที่กำหนด"
+      },
+      {
+        level: 2,
+        name: "บวกลบหลายขั้นตอน",
+        desc: "เชื่อมโยงเครื่องหมาย + และ - หลายตัวในสมการเดียวกัน",
+        tip: "คำนวณบวกและลบจากซ้ายไปขวาทีละขั้นตอนอย่างรอบคอบ"
+      },
+      {
+        level: 3,
+        name: "คูณ-หาร สร้างบิงโก",
+        desc: "ใช้สูตรคูณและการหารพื้นฐานสร้างสมการลงตัว",
+        tip: "ผลลัพธ์จากการหารต้องเป็นจำนวนเต็มลงตัวเสมอ"
+      },
+      {
+        level: 4,
+        name: "สมการดุลยภาพสองฝั่ง",
+        desc: "มีนิพจน์การคำนวณทั้งฝั่งซ้ายและฝั่งขวาของเครื่องหมาย =",
+        tip: "คำนวณผลลัพธ์ของฝั่งซ้ายและขวาให้ได้ค่าตัวเลขเท่ากัน"
+      },
+      {
+        level: 5,
+        name: "ลำดับการคำนวณสากล (BODMAS)",
+        desc: "ลำดับความสำคัญของเครื่องหมาย: ต้องทำ คูณ/หาร ก่อน บวก/ลบ",
+        tip: "ระวังกับดัก! อย่าคิดจากซ้ายไปขวา ให้คิดคู่คูณหรือหารก่อนเสมอ"
+      },
+      {
+        level: 6,
+        name: "เทคนิคเบี้ยว่าง (Blank Tile)",
+        desc: "เบี้ยว่าง ⭐ แทนตัวเลขหรือเครื่องหมายอะไรก็ได้ตามต้องการ",
+        tip: "แตะที่เบี้ยว่างบนแป้นเพื่อเลือกค่า หรือวางลงกระดานแล้วระบบจะวิเคราะห์ให้"
+      },
+      {
+        level: 7,
+        name: "การเกาะสมการกระดาน",
+        desc: "เบี้ยล็อก 📌 วางอยู่ที่ตำแหน่งสำคัญ เช่น ตัวเลขนำหน้าหรือเครื่องหมายกลาง",
+        tip: "สร้างโครงสร้างสมการยาวโดยยึดเบี้ยล็อกเป็นแกนหลัก"
+      },
+      {
+        level: 8,
+        name: "ล่าช่องพรีเมียม (+0, -0, *1)",
+        desc: "ประยุกต์ใช้เอกลักษณ์ทางคณิตศาสตร์ +0, -0 และ *1 เพื่อขยายความยาวสมการ",
+        tip: "การบวก 0 หรือลบ 0 หรือคูณ 1 ไม่เปลี่ยนค่าตัวเลข แต่ช่วยให้สมการยาวครบ 9 ช่อง"
+      },
+      {
+        level: 9,
+        name: "แก้โจทย์แป้นติดขัด",
+        desc: "รับมือกับเบี้ยเครื่องหมายซ้ำบนมือ (เช่น มี + สองตัว หรือ - สองตัว)",
+        tip: "กระจายเครื่องหมายซ้ำไปทั้งสองฝั่ง หรือเชื่อมสมการหลายขั้นตอน"
+      },
+      {
+        level: 10,
+        name: "เซียนเอแมทไร้เทียมทาน (^)",
+        desc: "ผสมผสานเลขยกกำลัง ^ และการคำนวณขั้นสูงระดับเซียนเอแมท",
+        tip: "เลขยกกำลัง ^ มีลำดับความสำคัญสูงสุด (เช่น 2^5 = 32, 3^4 = 81)"
+      }
+    ];
+
+    // Question Pool Generator Engine (>100 variations per level)
+    class QuestionPoolEngine {
+      constructor() {
+        this.cache = {};
+      }
+
+      generateLevelPool(level) {
+        if (this.cache[level] && this.cache[level].length >= 100) {
+          return this.cache[level];
+        }
+
+        const questions = [];
+        const seen = new Set();
+
+        const addEquation = (eqStr, fixedIdxPref = -1) => {
+          if (eqStr.length !== 9) return;
+          if (seen.has(eqStr)) return;
+          seen.add(eqStr);
+
+          // Select fixed tile index (prefer a meaningful digit or operator)
+          let fixedIdx = fixedIdxPref;
+          if (fixedIdx < 0 || fixedIdx >= 9) {
+            // Pick a non-trivial position
+            const candidates = [0, 2, 4, 5, 6, 8];
+            fixedIdx = candidates[Math.floor(Math.random() * candidates.length)];
+          }
+
+          const fixedChar = eqStr[fixedIdx];
+          const rackChars = [];
+          for (let i = 0; i < 9; i++) {
+            if (i !== fixedIdx) {
+              rackChars.push(eqStr[i]);
+            }
+          }
+
+          questions.push({
+            level,
+            equation: eqStr,
+            fixedIndex: fixedIdx,
+            fixedChar: fixedChar,
+            rack: rackChars
+          });
+        };
+
+        switch (level) {
+          case 1: {
+            // Pattern 1: A + B = C (2-digit + 2-digit = 3-digit: length 2+1+2+1+3 = 9)
+            for (let a = 15; a <= 99; a++) {
+              for (let b = 15; b <= 99; b++) {
+                const c = a + b;
+                if (c >= 100 && c <= 198) {
+                  addEquation(`${a}+${b}=${c}`);
+                  if (questions.length >= 70) break;
+                }
+              }
+              if (questions.length >= 70) break;
+            }
+            // Pattern 2: C - B = A (3-digit - 2-digit = 2-digit: length 3+1+2+1+2 = 9)
+            for (let c = 110; c <= 195; c++) {
+              for (let b = 20; b <= 95; b++) {
+                const a = c - b;
+                if (a >= 10 && a <= 99) {
+                  addEquation(`${c}-${b}=${a}`);
+                  if (questions.length >= 140) break;
+                }
+              }
+              if (questions.length >= 140) break;
+            }
+            break;
+          }
+
+          case 2: {
+            // Multi-step addition and subtraction: A + B - C = D (2+1+2+1+1+1+2 = 9)
+            for (let a = 20; a <= 80; a += 2) {
+              for (let b = 15; b <= 60; b += 3) {
+                for (let c = 1; c <= 9; c++) {
+                  const d = a + b - c;
+                  if (d >= 10 && d <= 99) {
+                    addEquation(`${a}+${b}-${c}=${d}`);
+                    if (questions.length >= 70) break;
+                  }
+                }
+                if (questions.length >= 70) break;
+              }
+              if (questions.length >= 70) break;
+            }
+            // A - B + C = D (2+1+2+1+1+1+2 = 9)
+            for (let a = 40; a <= 95; a += 3) {
+              for (let b = 15; b <= 40; b += 2) {
+                for (let c = 1; c <= 9; c++) {
+                  const d = a - b + c;
+                  if (d >= 10 && d <= 99) {
+                    addEquation(`${a}-${b}+${c}=${d}`);
+                    if (questions.length >= 140) break;
+                  }
+                }
+                if (questions.length >= 140) break;
+              }
+              if (questions.length >= 140) break;
+            }
+            break;
+          }
+
+          case 3: {
+            // Multiplication: A * B = C (2*2 = 3: 2+1+2+1+3 = 9)
+            for (let a = 11; a <= 35; a++) {
+              for (let b = 11; b <= 30; b++) {
+                const c = a * b;
+                if (c >= 100 && c <= 999) {
+                  addEquation(`${a}*${b}=${c}`);
+                  if (questions.length >= 70) break;
+                }
+              }
+              if (questions.length >= 70) break;
+            }
+            // Division: C / A = B (3-digit / 2-digit = 2-digit: 3+1+2+1+2 = 9)
+            for (let a = 12; a <= 25; a++) {
+              for (let b = 12; b <= 35; b++) {
+                const c = a * b;
+                if (c >= 100 && c <= 999) {
+                  addEquation(`${c}/${a}=${b}`);
+                  if (questions.length >= 140) break;
+                }
+              }
+              if (questions.length >= 140) break;
+            }
+            break;
+          }
+
+          case 4: {
+            // Balanced two sides: A + B = C + D (2+1+1+1+2+1+1 = 9)
+            for (let a = 12; a <= 80; a++) {
+              for (let b = 1; b <= 9; b++) {
+                const sum = a + b;
+                for (let c = 10; c <= sum - 1; c++) {
+                  const d = sum - c;
+                  if (d >= 1 && d <= 9 && (a !== c || b !== d)) {
+                    addEquation(`${a}+${b}=${c}+${d}`);
+                    if (questions.length >= 70) break;
+                  }
+                }
+                if (questions.length >= 70) break;
+              }
+              if (questions.length >= 70) break;
+            }
+            // A - B = C - D (2+1+1+1+2+1+1 = 9)
+            for (let a = 20; a <= 90; a += 2) {
+              for (let b = 1; b <= 9; b++) {
+                const diff = a - b;
+                for (let d = 1; d <= 9; d++) {
+                  const c = diff + d;
+                  if (c >= 10 && c <= 99 && (a !== c || b !== d)) {
+                    addEquation(`${a}-${b}=${c}-${d}`);
+                    if (questions.length >= 140) break;
+                  }
+                }
+                if (questions.length >= 140) break;
+              }
+              if (questions.length >= 140) break;
+            }
+            break;
+          }
+
+          case 5: {
+            // BODMAS: A + B * C = D (2+1+1+1+1+1+2 = 9) -> B*C done first!
+            for (let a = 10; a <= 60; a += 2) {
+              for (let b = 2; b <= 9; b++) {
+                for (let c = 2; c <= 9; c++) {
+                  const d = a + (b * c);
+                  if (d >= 10 && d <= 99) {
+                    addEquation(`${a}+${b}*${c}=${d}`);
+                    if (questions.length >= 70) break;
+                  }
+                }
+                if (questions.length >= 70) break;
+              }
+              if (questions.length >= 70) break;
+            }
+            // A - B * C = D (2+1+1+1+1+1+2 = 9)
+            for (let a = 50; a <= 95; a += 2) {
+              for (let b = 2; b <= 9; b++) {
+                for (let c = 2; c <= 9; c++) {
+                  const d = a - (b * c);
+                  if (d >= 10 && d <= 99) {
+                    addEquation(`${a}-${b}*${c}=${d}`);
+                    if (questions.length >= 140) break;
+                  }
+                }
+                if (questions.length >= 140) break;
+              }
+              if (questions.length >= 140) break;
+            }
+            break;
+          }
+
+          case 6: {
+            // Blank tile level: generate rich equations and replace 1 rack tile with '?'
+            const basePool = this.generateLevelPool(1).concat(this.generateLevelPool(2), this.generateLevelPool(3));
+            for (let i = 0; i < basePool.length && questions.length < 130; i++) {
+              const baseQ = basePool[i];
+              const rackCopy = [...baseQ.rack];
+              // Replace 1 random rack tile with '?'
+              const replaceIdx = Math.floor(Math.random() * rackCopy.length);
+              const replacedChar = rackCopy[replaceIdx];
+              rackCopy[replaceIdx] = '?';
+
+              questions.push({
+                level: 6,
+                equation: baseQ.equation,
+                fixedIndex: baseQ.fixedIndex,
+                fixedChar: baseQ.fixedChar,
+                rack: rackCopy,
+                blankReplaces: replacedChar
+              });
+            }
+            break;
+          }
+
+          case 7: {
+            // Long equation anchoring: fixed tile is set to tricky anchor points (index 0, 1, 7, 8)
+            const basePool = this.generateLevelPool(1).concat(this.generateLevelPool(2), this.generateLevelPool(4));
+            for (let i = 0; i < basePool.length && questions.length < 130; i++) {
+              const baseQ = basePool[i];
+              const anchorIndices = [0, 1, 7, 8];
+              const chosenAnchor = anchorIndices[i % anchorIndices.length];
+              const fixedChar = baseQ.equation[chosenAnchor];
+              const rackChars = [];
+              for (let j = 0; j < 9; j++) {
+                if (j !== chosenAnchor) rackChars.push(baseQ.equation[j]);
+              }
+              questions.push({
+                level: 7,
+                equation: baseQ.equation,
+                fixedIndex: chosenAnchor,
+                fixedChar: fixedChar,
+                rack: rackChars
+              });
+            }
+            break;
+          }
+
+          case 8: {
+            // Premium identity tricks: +0, -0, *1 (2+1+1+1+1+1+2 = 9)
+            // A + 0 - B = C
+            for (let a = 20; a <= 90; a += 3) {
+              for (let b = 1; b <= 9; b++) {
+                const c = a + 0 - b;
+                if (c >= 10 && c <= 99) {
+                  addEquation(`${a}+0-${b}=${c}`);
+                  if (questions.length >= 40) break;
+                }
+              }
+              if (questions.length >= 40) break;
+            }
+            // A - 0 - B = C
+            for (let a = 30; a <= 95; a += 3) {
+              for (let b = 1; b <= 9; b++) {
+                const c = a - 0 - b;
+                if (c >= 10 && c <= 99) {
+                  addEquation(`${a}-0-${b}=${c}`);
+                  if (questions.length >= 80) break;
+                }
+              }
+              if (questions.length >= 80) break;
+            }
+            // A * 1 + B = C
+            for (let a = 20; a <= 85; a += 3) {
+              for (let b = 1; b <= 9; b++) {
+                const c = a * 1 + b;
+                if (c >= 10 && c <= 99) {
+                  addEquation(`${a}*1+${b}=${c}`);
+                  if (questions.length >= 120) break;
+                }
+              }
+              if (questions.length >= 120) break;
+            }
+            // A * 1 - B = C
+            for (let a = 25; a <= 95; a += 3) {
+              for (let b = 1; b <= 9; b++) {
+                const c = a * 1 - b;
+                if (c >= 10 && c <= 99) {
+                  addEquation(`${a}*1-${b}=${c}`);
+                  if (questions.length >= 150) break;
+                }
+              }
+              if (questions.length >= 150) break;
+            }
+            break;
+          }
+
+          case 9: {
+            // Rack congestion with duplicate operators (e.g. two '+' or two '-')
+            // A + B + C = D (2+1+1+1+1+1+2 = 9) -> two '+' signs!
+            for (let a = 15; a <= 80; a += 2) {
+              for (let b = 2; b <= 9; b++) {
+                for (let c = 2; c <= 9; c++) {
+                  const d = a + b + c;
+                  if (d >= 10 && d <= 99) {
+                    addEquation(`${a}+${b}+${c}=${d}`);
+                    if (questions.length >= 70) break;
+                  }
+                }
+                if (questions.length >= 70) break;
+              }
+              if (questions.length >= 70) break;
+            }
+            // A - B - C = D (2+1+1+1+1+1+2 = 9) -> two '-' signs!
+            for (let a = 40; a <= 95; a += 2) {
+              for (let b = 2; b <= 9; b++) {
+                for (let c = 2; c <= 9; c++) {
+                  const d = a - b - c;
+                  if (d >= 10 && d <= 99) {
+                    addEquation(`${a}-${b}-${c}=${d}`);
+                    if (questions.length >= 140) break;
+                  }
+                }
+                if (questions.length >= 140) break;
+              }
+              if (questions.length >= 140) break;
+            }
+            break;
+          }
+
+          case 10: {
+            // Exponent arithmetic (^): A ^ B + C = D or A ^ B - C = D
+            // 1+1+1+1+2+1+2 = 9 chars
+            const powers = [
+              { b: 2, exp: 5, val: 32 },
+              { b: 2, exp: 6, val: 64 },
+              { b: 2, exp: 4, val: 16 },
+              { b: 3, exp: 4, val: 81 },
+              { b: 3, exp: 3, val: 27 },
+              { b: 4, exp: 3, val: 64 },
+              { b: 5, exp: 2, val: 25 },
+              { b: 6, exp: 2, val: 36 },
+              { b: 7, exp: 2, val: 49 },
+              { b: 8, exp: 2, val: 64 },
+              { b: 9, exp: 2, val: 81 }
+            ];
+
+            for (const p of powers) {
+              for (let c = 10; c <= 70; c += 2) {
+                const addVal = p.val + c;
+                if (addVal >= 10 && addVal <= 99) {
+                  addEquation(`${p.b}^${p.exp}+${c}=${addVal}`);
+                }
+                const subVal = p.val - c;
+                if (subVal >= 10 && subVal <= 99) {
+                  addEquation(`${p.b}^${p.exp}-${c}=${subVal}`);
+                }
+                if (questions.length >= 140) break;
+              }
+              if (questions.length >= 140) break;
+            }
+            break;
+          }
+        }
+
+        this.cache[level] = questions;
+        return questions;
+      }
+
+      pickThreeDistinctQuestions(level) {
+        const pool = this.generateLevelPool(level);
+        const shuffled = [...pool].sort(() => Math.random() - 0.5);
+        return shuffled.slice(0, 3);
+      }
+    }
+
+    const poolEngine = new QuestionPoolEngine();
+
+    // Mathematical Expression Parser & Evaluator (BODMAS + Exponents)
+    class MathEvaluator {
+      static evaluateSide(expr) {
+        // Evaluate an expression string like "20+4*5" or "2^5+18"
+        // Tokens: numbers, +, -, *, /, ^
+        const tokens = [];
+        let i = 0;
+        while (i < expr.length) {
+          const ch = expr[i];
+          if (/\d/.test(ch)) {
+            let numStr = "";
+            while (i < expr.length && /\d/.test(expr[i])) {
+              numStr += expr[i];
+              i++;
+            }
+            tokens.push(parseInt(numStr, 10));
+          } else if (['+', '-', '*', '/', '^'].includes(ch)) {
+            tokens.push(ch);
+            i++;
+          } else {
+            return { error: `ตัวอักษรไม่ถูกต้อง: '${ch}'` };
+          }
+        }
+
+        if (tokens.length === 0) return { error: "นิพจน์ว่างเปล่า" };
+
+        // Shunting-yard algorithm to evaluate with proper operator precedence
+        const output = [];
+        const ops = [];
+        const precedence = { '+': 1, '-': 1, '*': 2, '/': 2, '^': 3 };
+
+        for (const token of tokens) {
+          if (typeof token === 'number') {
+            output.push(token);
+          } else {
+            while (
+              ops.length > 0 &&
+              ops[ops.length - 1] !== '(' &&
+              (token !== '^'
+                ? precedence[ops[ops.length - 1]] >= precedence[token]
+                : precedence[ops[ops.length - 1]] > precedence[token])
+            ) {
+              output.push(ops.pop());
+            }
+            ops.push(token);
+          }
+        }
+        while (ops.length > 0) {
+          output.push(ops.pop());
+        }
+
+        // Evaluate RPN
+        const stack = [];
+        for (const item of output) {
+          if (typeof item === 'number') {
+            stack.push(item);
+          } else {
+            if (stack.length < 2) return { error: "ไวยากรณ์สมการไม่ถูกต้อง" };
+            const b = stack.pop();
+            const a = stack.pop();
+            let res = 0;
+            if (item === '+') res = a + b;
+            else if (item === '-') res = a - b;
+            else if (item === '*') res = a * b;
+            else if (item === '/') {
+              if (b === 0) return { error: "พบการหารด้วยศูนย์ (Division by zero)" };
+              res = a / b;
+            } else if (item === '^') {
+              res = Math.pow(a, b);
+            }
+            stack.push(res);
+          }
+        }
+
+        if (stack.length !== 1) return { error: "ไวยากรณ์สมการไม่สมบูรณ์" };
+        return { val: stack[0] };
+      }
+
+      static diagnose(boardString) {
+        // 1. Check if complete 9 characters
+        if (boardString.includes(' ') || boardString.length < 9) {
+          const placedCount = boardString.split('').filter(c => c !== ' ').length - 1; // subtract 1 for fixed
+          return {
+            status: "INCOMPLETE",
+            title: "วางเบี้ยยังไม่ครบ",
+            msg: `คุณวางเบี้ยบนกระดานไปแล้ว ${placedCount}/8 ตัว (ยังเหลือเบี้ยบนแป้นมืออีก ${8 - placedCount} ตัว)`,
+            advice: "กฎเอแมท: ต้องนำเบี้ยบนแป้นทั้งหมด 8 ตัวลงมาวางบนกระดานเพื่อเชื่อมต่อกับเบี้ยล็อก 📌 ให้ครบ 9 ช่อง"
+          };
+        }
+
+        // 2. Check for equal sign
+        const eqCount = (boardString.match(/=/g) || []).length;
+        if (eqCount === 0) {
+          return {
+            status: "NO_EQUALS",
+            title: "ขาดเครื่องหมายเท่ากับ (=)",
+            msg: "ไม่พบเครื่องหมายเท่ากับ (=) บนกระดานคำตอบ!",
+            advice: "สมการทางคณิตศาสตร์ต้องมีเครื่องหมาย = คั่นกลางเพื่อแบ่งนิพจน์ออกเป็นสองฝั่ง (ซ้าย = ขวา)"
+          };
+        }
+        if (eqCount > 1) {
+          return {
+            status: "MULTIPLE_EQUALS",
+            title: "มีเครื่องหมายเท่ากับมากเกินไป",
+            msg: `พบบรรทัดเครื่องหมายเท่ากับ (=) ทั้งหมด ${eqCount} ตัว`,
+            advice: "สมการบิงโกความยาว 9 ช่อง อนุญาตให้มีเครื่องหมายเท่ากับ (=) ได้เพียง 1 ตัวเท่านั้น"
+          };
+        }
+
+        // 3. Syntax check (adjacent operators, edge operators)
+        const sides = boardString.split('=');
+        const left = sides[0];
+        const right = sides[1];
+
+        if (!left || left.length === 0 || !right || right.length === 0) {
+          return {
+            status: "SYNTAX_ERROR",
+            title: "ฝั่งสมการว่างเปล่า",
+            msg: "เครื่องหมายเท่ากับอยู่ริมสุด ทำให้ไม่มีตัวเลขในฝั่งใดฝั่งหนึ่ง",
+            advice: "เครื่องหมาย = ต้องอยู่ระหว่างตัวเลขหรือนิพจน์ทั้งสองฝั่ง"
+          };
+        }
+
+        const opPattern = /[+\-*/^]{2,}/;
+        if (opPattern.test(left) || opPattern.test(right)) {
+          return {
+            status: "SYNTAX_ERROR",
+            title: "ไวยากรณ์สมการผิดพลาด",
+            msg: "มีเครื่องหมายคำนวณวางติดกัน (เช่น ++, +-, */)",
+            advice: "ไม่สามารถวางเครื่องหมายติดกันได้ เครื่องหมายต้องอยู่ระหว่างตัวเลขเท่านั้น"
+          };
+        }
+
+        const edgeOpPattern = /^[+\-*/^]|[+\-*/^]$/;
+        if (edgeOpPattern.test(left) || edgeOpPattern.test(right)) {
+          return {
+            status: "SYNTAX_ERROR",
+            title: "ไวยากรณ์สมการผิดพลาด",
+            msg: "พบเครื่องหมายคำนวณอยู่หน้าสุดหรือหลังสุดของฝั่งสมการ",
+            advice: "เครื่องหมายคำนวณต้องคั่นระหว่างตัวเลข ไม่สามารถวางไว้หน้าสุดหรือติดกับเครื่องหมาย = ได้"
+          };
+        }
+
+        // 4. Evaluate Left & Right
+        const leftEval = this.evaluateSide(left);
+        const rightEval = this.evaluateSide(right);
+
+        if (leftEval.error) {
+          return {
+            status: "SYNTAX_ERROR",
+            title: "ข้อผิดพลาดฝั่งซ้าย",
+            msg: leftEval.error,
+            advice: "ตรวจสอบลำดับเครื่องหมายและตัวเลขในฝั่งซ้ายของเครื่องหมาย ="
+          };
+        }
+        if (rightEval.error) {
+          return {
+            status: "SYNTAX_ERROR",
+            title: "ข้อผิดพลาดฝั่งขวา",
+            msg: rightEval.error,
+            advice: "ตรวจสอบลำดับเครื่องหมายและตัวเลขในฝั่งขวาของเครื่องหมาย ="
+          };
+        }
+
+        const leftVal = leftEval.val;
+        const rightVal = rightEval.val;
+
+        // Check division integer rule in A-Math
+        if (!Number.isInteger(leftVal) || !Number.isInteger(rightVal)) {
+          return {
+            status: "NON_INTEGER",
+            title: "ผลลัพธ์ไม่เป็นจำนวนเต็ม",
+            msg: `ผลลัพธ์มีทศนิยม (ฝั่งซ้าย = ${leftVal}, ฝั่งขวา = ${rightVal})`,
+            advice: "ในกติกา A-Math มาตรฐาน ผลลัพธ์จากการคำนวณทุกขั้นตอนต้องเป็นจำนวนเต็มเท่านั้น"
+          };
+        }
+
+        // 5. Compare Left & Right
+        if (Math.abs(leftVal - rightVal) < 1e-9) {
+          return {
+            status: "SUCCESS",
+            title: "สมการถูกต้อง (Bingo!)",
+            msg: `🎉 บิงโกสำเร็จ! สมการ ${left} = ${right} มีค่าเท่ากับ ${leftVal} ทั้งสองฝั่ง`,
+            advice: "ยอดเยี่ยมมาก! การจัดวางเบี้ยดุลยภาพตามหลักคณิตศาสตร์ถูกต้องสมบูรณ์แบบ"
+          };
+        } else {
+          return {
+            status: "UNEQUAL",
+            title: "ผลลัพธ์สองฝั่งไม่เท่ากัน",
+            msg: `สมการไม่ดุลยภาพ: ฝั่งซ้ายคำนวณได้ ${leftVal} แต่ฝั่งขวาคำนวณได้ ${rightVal}!`,
+            advice: "ตรวจสอบลำดับการคำนวณสากล (BODMAS): ทำเลขยกกำลัง (^) ก่อน, ตามด้วย คูณ/หาร (*, /), แล้วจึงทำ บวก/ลบ (+, -)"
+          };
+        }
+      }
+    }
+
+    // Confetti Animation Controller
+    class Confetti {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.particles = [];
+        this.animId = null;
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+      }
+      resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      }
+      burst() {
+        this.particles = [];
+        const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#38bdf8', '#fef08a'];
+        for (let i = 0; i < 90; i++) {
+          this.particles.push({
+            x: this.canvas.width * 0.5,
+            y: this.canvas.height * 0.4,
+            vx: (Math.random() - 0.5) * 14,
+            vy: (Math.random() - 0.8) * 16,
+            size: Math.random() * 8 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * 360,
+            vRot: (Math.random() - 0.5) * 10,
+            alpha: 1,
+            gravity: 0.35
+          });
+        }
+        if (this.animId) cancelAnimationFrame(this.animId);
+        this.animate();
+      }
+      animate() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        let alive = false;
+        for (const p of this.particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += p.gravity;
+          p.rotation += p.vRot;
+          p.alpha -= 0.012;
+          if (p.alpha > 0) {
+            alive = true;
+            this.ctx.save();
+            this.ctx.globalAlpha = p.alpha;
+            this.ctx.translate(p.x, p.y);
+            this.ctx.rotate((p.rotation * Math.PI) / 180);
+            this.ctx.fillStyle = p.color;
+            this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+            this.ctx.restore();
+          }
+        }
+        if (alive) {
+          this.animId = requestAnimationFrame(() => this.animate());
+        } else {
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+      }
+    }
+
+    const confetti = new Confetti(document.getElementById('confetti-canvas'));
+
+    // Main Game State Manager
+    class GameApp {
+      constructor() {
+        // State
+        this.currentLevel = 1;
+        this.currentQuestionIdx = 0; // 0, 1, 2 (3 questions per level)
+        this.wrongCount = 0; // max 3 mistakes
+        this.currentQuestions = [];
+        this.currentQ = null;
+
+        // Board & Rack representations
+        // Board: array of 9 objects { isFixed: bool, char: string, tileId: string|null, isBlank: bool, assignedChar: string|null }
+        this.board = Array(9).fill(null).map(() => ({
+          isFixed: false,
+          char: ' ',
+          tileId: null,
+          isBlank: false,
+          assignedChar: null
+        }));
+
+        // Rack: array of tile objects { id: string, char: string, isBlank: bool, assignedChar: string|null }
+        this.rack = [];
+        this.selectedBoardSlot = null;
+        this.activeBlankTile = null;
+
+        // Persistent stats
+        this.loadStats();
+
+        // UI references
+        this.initDOMElements();
+        this.attachEvents();
+
+        // Start initial question
+        this.startLevel(this.currentLevel, false);
+      }
+
+      loadStats() {
+        this.highestLevel = parseInt(localStorage.getItem('amath_highest_level') || '1', 10);
+        this.totalBingos = parseInt(localStorage.getItem('amath_total_bingos') || '0', 10);
+        this.totalWrongs = parseInt(localStorage.getItem('amath_total_wrongs') || '0', 10);
+      }
+
+      saveStats() {
+        localStorage.setItem('amath_highest_level', this.highestLevel.toString());
+        localStorage.setItem('amath_total_bingos', this.totalBingos.toString());
+        localStorage.setItem('amath_total_wrongs', this.totalWrongs.toString());
+        this.updateStatsUI();
+      }
+
+      initDOMElements() {
+        this.boardGridEl = document.getElementById('board-grid');
+        this.rackGridEl = document.getElementById('rack-grid');
+        this.rackCountBadgeEl = document.getElementById('rack-count-badge');
+        this.checkBtn = document.getElementById('check-btn');
+        this.recallBtn = document.getElementById('recall-btn');
+        this.shuffleBtn = document.getElementById('shuffle-btn');
+        this.hintBtn = document.getElementById('hint-btn');
+        this.soundBtn = document.getElementById('sound-btn');
+        this.statsBtn = document.getElementById('stats-btn');
+        this.restartBtn = document.getElementById('restart-btn');
+
+        this.levelBadgeEl = document.getElementById('level-badge');
+        this.levelTitleEl = document.getElementById('level-title');
+        this.levelDescEl = document.getElementById('level-desc');
+
+        this.statHighLevelEl = document.getElementById('stat-high-level');
+        this.statBingosEl = document.getElementById('stat-bingos');
+        this.statWrongsEl = document.getElementById('stat-wrongs');
+        this.statAccuracyEl = document.getElementById('stat-accuracy');
+
+        this.feedbackBox = document.getElementById('feedback-box');
+        this.feedbackTitle = document.getElementById('feedback-title');
+        this.feedbackMsg = document.getElementById('feedback-msg');
+        this.feedbackAdvice = document.getElementById('feedback-advice');
+
+        // Modals
+        this.restartModal = document.getElementById('restart-modal');
+        this.statsModal = document.getElementById('stats-modal');
+        this.penaltyModal = document.getElementById('penalty-modal');
+        this.levelClearModal = document.getElementById('level-clear-modal');
+        this.blankModal = document.getElementById('blank-modal');
+        this.blankPickerGrid = document.getElementById('blank-picker-grid');
+
+        // Modal triggers
+        document.getElementById('cancel-restart-btn').addEventListener('click', () => this.hideModal(this.restartModal));
+        document.getElementById('confirm-restart-btn').addEventListener('click', () => this.confirmRestartGame());
+        document.getElementById('close-stats-btn').addEventListener('click', () => this.hideModal(this.statsModal));
+        document.getElementById('acknowledge-penalty-btn').addEventListener('click', () => this.hideModal(this.penaltyModal));
+        document.getElementById('next-level-btn').addEventListener('click', () => {
+          this.hideModal(this.levelClearModal);
+          this.advanceToNextLevel();
+        });
+        document.getElementById('cancel-blank-btn').addEventListener('click', () => this.hideModal(this.blankModal));
+
+        // Populate Blank Tile Picker with 0-9 and operators
+        const blankSymbols = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', '*', '/', '=', '^'];
+        this.blankPickerGrid.innerHTML = '';
+        blankSymbols.forEach(sym => {
+          const btn = document.createElement('button');
+          btn.className = 'blank-pick-btn';
+          btn.textContent = sym;
+          btn.addEventListener('click', () => this.selectBlankValue(sym));
+          this.blankPickerGrid.appendChild(btn);
+        });
+
+        this.updateStatsUI();
+      }
+
+      attachEvents() {
+        this.checkBtn.addEventListener('click', () => this.checkBingo());
+        this.recallBtn.addEventListener('click', () => this.recallAllToRack());
+        this.shuffleBtn.addEventListener('click', () => this.shuffleRack());
+        this.hintBtn.addEventListener('click', () => this.giveHint());
+
+        this.soundBtn.addEventListener('click', () => {
+          sfx.enabled = !sfx.enabled;
+          this.soundBtn.textContent = sfx.enabled ? '🔊' : '🔇';
+          if (sfx.enabled) sfx.place();
+        });
+
+        this.statsBtn.addEventListener('click', () => this.openStatsModal());
+        this.restartBtn.addEventListener('click', () => this.showModal(this.restartModal));
+      }
+
+      startLevel(level, isDemotion = false) {
+        this.currentLevel = Math.max(1, Math.min(10, level));
+        this.currentQuestionIdx = 0;
+        this.wrongCount = 0;
+
+        if (this.currentLevel > this.highestLevel) {
+          this.highestLevel = this.currentLevel;
+          this.saveStats();
+        }
+
+        // Generate 3 unique questions for this level
+        this.currentQuestions = poolEngine.pickThreeDistinctQuestions(this.currentLevel);
+        this.loadCurrentQuestion();
+        this.updateHeaderUI();
+        this.updatePenaltyUI();
+        this.updateStatsUI();
+      }
+
+      loadCurrentQuestion() {
+        this.currentQ = this.currentQuestions[this.currentQuestionIdx];
+        this.selectedBoardSlot = null;
+
+        // Initialize Board with 9 slots
+        this.board = Array(9).fill(null).map((_, idx) => {
+          if (idx === this.currentQ.fixedIndex) {
+            return {
+              isFixed: true,
+              char: this.currentQ.fixedChar,
+              tileId: 'fixed-' + idx,
+              isBlank: false,
+              assignedChar: null
+            };
+          }
+          return {
+            isFixed: false,
+            char: ' ',
+            tileId: null,
+            isBlank: false,
+            assignedChar: null
+          };
+        });
+
+        // Initialize Rack with 8 shuffled tiles
+        this.rack = this.currentQ.rack.map((ch, idx) => ({
+          id: `tile-${Date.now()}-${idx}`,
+          char: ch,
+          isBlank: ch === '?',
+          assignedChar: null
+        }));
+        this.rack.sort(() => Math.random() - 0.5);
+
+        this.renderBoard();
+        this.renderRack();
+        this.updateProgressDots();
+
+        // Reset feedback
+        this.setFeedback(
+          "default",
+          "💡 คำแนะนำการเล่น",
+          "นำเบี้ยทั้ง 8 ตัวบนแป้นมาวางให้เชื่อมกับเบี้ยล็อก 📌 รวมเป็นสมการยาว 9 ช่องให้ถูกต้อง",
+          LEVEL_CONFIG[this.currentLevel - 1].tip
+        );
+      }
+
+      updateHeaderUI() {
+        const info = LEVEL_CONFIG[this.currentLevel - 1];
+        this.levelBadgeEl.textContent = `LEVEL ${this.currentLevel}`;
+        this.levelTitleEl.textContent = info.name;
+        this.levelDescEl.textContent = info.desc;
+      }
+
+      updateProgressDots() {
+        for (let i = 0; i < 3; i++) {
+          const dot = document.getElementById(`dot-${i}`);
+          dot.className = 'dot';
+          if (i < this.currentQuestionIdx) {
+            dot.classList.add('cleared');
+          } else if (i === this.currentQuestionIdx) {
+            dot.classList.add('active');
+          }
+        }
+      }
+
+      updatePenaltyUI() {
+        for (let i = 1; i <= 3; i++) {
+          const badge = document.getElementById(`strike-${i}`);
+          if (i <= this.wrongCount) {
+            badge.classList.add('struck');
+          } else {
+            badge.classList.remove('struck');
+          }
+        }
+        this.statWrongsEl.textContent = `${this.wrongCount}/3`;
+        if (this.wrongCount >= 2) {
+          this.statWrongsEl.classList.add('warning');
+        } else {
+          this.statWrongsEl.classList.remove('warning');
+        }
+      }
+
+      updateStatsUI() {
+        this.statHighLevelEl.textContent = `Lv.${this.highestLevel}`;
+        this.statBingosEl.textContent = this.totalBingos.toString();
+        this.statWrongsEl.textContent = `${this.wrongCount}/3`;
+
+        const totalAttempts = this.totalBingos + this.totalWrongs;
+        const accuracy = totalAttempts > 0 ? Math.round((this.totalBingos / totalAttempts) * 100) : 100;
+        this.statAccuracyEl.textContent = `${accuracy}%`;
+      }
+
+      renderBoard() {
+        this.boardGridEl.innerHTML = '';
+        this.board.forEach((slot, index) => {
+          const slotEl = document.createElement('div');
+          slotEl.className = 'board-slot';
+          if (this.selectedBoardSlot === index) {
+            slotEl.classList.add('selected');
+          }
+
+          if (slot.isFixed) {
+            const tileEl = document.createElement('div');
+            tileEl.className = 'tile fixed';
+            tileEl.textContent = slot.char;
+
+            const pinBadge = document.createElement('span');
+            pinBadge.className = 'pin-badge';
+            pinBadge.textContent = '📌';
+            tileEl.appendChild(pinBadge);
+            slotEl.appendChild(tileEl);
+          } else if (slot.tileId) {
+            const tileEl = document.createElement('div');
+            tileEl.className = 'tile player';
+            const displayChar = slot.isBlank && slot.assignedChar ? slot.assignedChar : slot.char;
+            tileEl.textContent = displayChar;
+
+            if (slot.isBlank) {
+              tileEl.classList.add('blank-assigned');
+              const star = document.createElement('span');
+              star.className = 'blank-star';
+              star.textContent = '★';
+              tileEl.appendChild(star);
+            }
+
+            tileEl.addEventListener('click', (e) => {
+              e.stopPropagation();
+              this.returnTileFromBoard(index);
+            });
+            slotEl.appendChild(tileEl);
+          } else {
+            const indexLabel = document.createElement('span');
+            indexLabel.className = 'slot-index';
+            indexLabel.textContent = (index + 1).toString();
+            slotEl.appendChild(indexLabel);
+
+            slotEl.addEventListener('click', () => {
+              this.selectBoardSlot(index);
+            });
+          }
+
+          this.boardGridEl.appendChild(slotEl);
+        });
+      }
+
+      renderRack() {
+        this.rackGridEl.innerHTML = '';
+        this.rack.forEach((tile) => {
+          const slotEl = document.createElement('div');
+          slotEl.className = 'rack-slot';
+
+          const tileEl = document.createElement('div');
+          tileEl.className = 'tile player';
+          const displayChar = tile.isBlank && tile.assignedChar ? tile.assignedChar : tile.char;
+          tileEl.textContent = displayChar;
+
+          if (tile.isBlank) {
+            tileEl.classList.add('blank-assigned');
+            const star = document.createElement('span');
+            star.className = 'blank-star';
+            star.textContent = '★';
+            tileEl.appendChild(star);
+          }
+
+          tileEl.addEventListener('click', () => {
+            if (tile.isBlank && !tile.assignedChar) {
+              this.openBlankPicker(tile);
+            } else {
+              this.placeTileOnBoard(tile);
+            }
+          });
+
+          slotEl.appendChild(tileEl);
+          this.rackGridEl.appendChild(slotEl);
+        });
+
+        // Fill remaining rack slots up to 8 with empty placeholders
+        for (let i = this.rack.length; i < 8; i++) {
+          const emptySlot = document.createElement('div');
+          emptySlot.className = 'rack-slot empty-rack';
+          this.rackGridEl.appendChild(emptySlot);
+        }
+
+        this.rackCountBadgeEl.textContent = `${this.rack.length}/8`;
+      }
+
+      selectBoardSlot(slotIndex) {
+        if (this.board[slotIndex].isFixed) return;
+        if (this.selectedBoardSlot === slotIndex) {
+          this.selectedBoardSlot = null;
+        } else {
+          this.selectedBoardSlot = slotIndex;
+        }
+        sfx.place();
+        this.renderBoard();
+      }
+
+      placeTileOnBoard(tile) {
+        let targetIndex = this.selectedBoardSlot;
+
+        // If no slot selected or selected is full, find the first available empty non-fixed slot
+        if (targetIndex === null || targetIndex === undefined || this.board[targetIndex].tileId || this.board[targetIndex].isFixed) {
+          targetIndex = this.board.findIndex(slot => !slot.isFixed && !slot.tileId);
+        }
+
+        if (targetIndex === -1) {
+          this.setFeedback("warning", "กระดานเต็มแล้ว", "กระดานมีเบี้ยวางครบ 9 ช่องแล้ว หากต้องการย้าย ให้แตะเบี้ยบนกระดานเพื่อนำกลับลงแป้นก่อน", "");
+          return;
+        }
+
+        // Place tile
+        const charToPlace = tile.isBlank && tile.assignedChar ? tile.assignedChar : tile.char;
+        this.board[targetIndex] = {
+          isFixed: false,
+          char: charToPlace,
+          tileId: tile.id,
+          isBlank: tile.isBlank,
+          assignedChar: tile.assignedChar
+        };
+
+        // Remove from rack
+        this.rack = this.rack.filter(t => t.id !== tile.id);
+        this.selectedBoardSlot = null;
+
+        sfx.place();
+        this.renderBoard();
+        this.renderRack();
+      }
+
+      returnTileFromBoard(slotIndex) {
+        const slot = this.board[slotIndex];
+        if (!slot || slot.isFixed || !slot.tileId) return;
+
+        // Return to rack
+        this.rack.push({
+          id: slot.tileId,
+          char: slot.isBlank ? '?' : slot.char,
+          isBlank: slot.isBlank,
+          assignedChar: slot.assignedChar
+        });
+
+        // Clear board slot
+        this.board[slotIndex] = {
+          isFixed: false,
+          char: ' ',
+          tileId: null,
+          isBlank: false,
+          assignedChar: null
+        };
+
+        sfx.recall();
+        this.renderBoard();
+        this.renderRack();
+      }
+
+      recallAllToRack() {
+        let recalledCount = 0;
+        for (let i = 0; i < 9; i++) {
+          if (!this.board[i].isFixed && this.board[i].tileId) {
+            this.rack.push({
+              id: this.board[i].tileId,
+              char: this.board[i].isBlank ? '?' : this.board[i].char,
+              isBlank: this.board[i].isBlank,
+              assignedChar: this.board[i].assignedChar
+            });
+            this.board[i] = {
+              isFixed: false,
+              char: ' ',
+              tileId: null,
+              isBlank: false,
+              assignedChar: null
+            };
+            recalledCount++;
+          }
+        }
+        if (recalledCount > 0) {
+          sfx.recall();
+          this.renderBoard();
+          this.renderRack();
+        }
+      }
+
+      shuffleRack() {
+        if (this.rack.length <= 1) return;
+        this.rack.sort(() => Math.random() - 0.5);
+        sfx.place();
+        this.renderRack();
+      }
+
+      giveHint() {
+        // Find an empty board slot where solution character is known
+        const sol = this.currentQ.equation;
+        const emptyIndices = [];
+        for (let i = 0; i < 9; i++) {
+          if (!this.board[i].isFixed && !this.board[i].tileId) {
+            emptyIndices.push(i);
+          }
+        }
+
+        if (emptyIndices.length === 0) {
+          this.setFeedback("warning", "ไม่มีช่องว่าง", "กระดานเต็มแล้ว ลองตรวจคำตอบ หรือแตะเบี้ยที่ต้องการเปลี่ยนเพื่อนำกลับลงแป้น", "");
+          return;
+        }
+
+        const targetIdx = emptyIndices[0];
+        const neededChar = sol[targetIdx];
+
+        // Find tile in rack that matches neededChar
+        let tileInRack = this.rack.find(t => t.char === neededChar);
+        if (!tileInRack) {
+          // If blank tile available
+          tileInRack = this.rack.find(t => t.isBlank);
+          if (tileInRack) {
+            tileInRack.assignedChar = neededChar;
+          }
+        }
+
+        if (tileInRack) {
+          this.selectedBoardSlot = targetIdx;
+          this.placeTileOnBoard(tileInRack);
+          this.setFeedback("default", "💡 คำใบ้ช่วยเหลือ", `วางเบี้ย '${neededChar}' ลงในช่องที่ ${targetIdx + 1} เรียบร้อยแล้ว`, "ลองสังเกตการคำนวณรอบข้างเพื่อต่อสมการให้สมบูรณ์");
+        } else {
+          this.setFeedback("warning", "คำใบ้", `ช่องที่ ${targetIdx + 1} ต้องการเบี้ย '${neededChar}' (อาจอยู่บนกระดานที่ช่องอื่น)`, "ลองดึงเบี้ยกลับลงแป้นแล้ววางใหม่");
+        }
+      }
+
+      openBlankPicker(tile) {
+        this.activeBlankTile = tile;
+        this.showModal(this.blankModal);
+      }
+
+      selectBlankValue(val) {
+        if (this.activeBlankTile) {
+          this.activeBlankTile.assignedChar = val;
+          this.placeTileOnBoard(this.activeBlankTile);
+          this.activeBlankTile = null;
+        }
+        this.hideModal(this.blankModal);
+      }
+
+      checkBingo() {
+        // Construct 9-character board string
+        let boardString = "";
+        for (let i = 0; i < 9; i++) {
+          boardString += this.board[i].char;
+        }
+
+        // Diagnostic evaluation
+        const diag = MathEvaluator.diagnose(boardString);
+
+        if (diag.status === "SUCCESS") {
+          // Bingo Cleared!
+          sfx.bingo();
+          confetti.burst();
+          this.totalBingos++;
+          this.saveStats();
+
+          this.setFeedback("success", diag.title, diag.msg, diag.advice);
+
+          // Highlight board slots green
+          const slots = this.boardGridEl.querySelectorAll('.tile');
+          slots.forEach(s => s.classList.add('pulse-anim'));
+
+          // Progress handling (3 questions per level)
+          this.currentQuestionIdx++;
+          this.updateProgressDots();
+
+          if (this.currentQuestionIdx >= 3) {
+            // Level Clear!
+            setTimeout(() => {
+              sfx.levelUp();
+              this.showLevelClearModal();
+            }, 800);
+          } else {
+            // Advance to next question in this level
+            setTimeout(() => {
+              this.loadCurrentQuestion();
+            }, 1400);
+          }
+        } else {
+          // Wrong answer!
+          sfx.error();
+          this.totalWrongs++;
+          this.wrongCount++;
+          this.saveStats();
+          this.updatePenaltyUI();
+
+          const alertType = diag.status === "INCOMPLETE" ? "warning" : "error";
+          this.setFeedback(alertType, diag.title, diag.msg, diag.advice);
+
+          // Shake board
+          this.boardGridEl.classList.add('pulse-anim');
+          setTimeout(() => this.boardGridEl.classList.remove('pulse-anim'), 400);
+
+          // 3-Mistakes Penalty Rule: Demotion!
+          if (this.wrongCount >= 3) {
+            setTimeout(() => {
+              this.triggerDemotionPenalty();
+            }, 600);
+          }
+        }
+      }
+
+      triggerDemotionPenalty() {
+        sfx.penalty();
+        const penaltyMsgEl = document.getElementById('penalty-modal-content');
+
+        if (this.currentLevel > 1) {
+          const newLevel = this.currentLevel - 1;
+          penaltyMsgEl.innerHTML = `
+            คุณตอบผิดครบ <strong>3 ครั้ง</strong> ในด่านนี้!<br><br>
+            ระบบทำการปรับลดระดับจาก <strong>Level ${this.currentLevel}</strong> ลงมาที่ <strong>Level ${newLevel}</strong> และเริ่มนับข้อ 1/3 ใหม่ เพื่อให้คุณได้ทบทวนพื้นฐานอีกครั้ง
+          `;
+          this.startLevel(newLevel, true);
+        } else {
+          penaltyMsgEl.innerHTML = `
+            คุณตอบผิดครบ <strong>3 ครั้ง</strong> ใน Level 1!<br><br>
+            ระบบทำการรีเซ็ตสุ่มโจทย์ใน Level 1 ข้อ 1/3 ใหม่ทั้งหมด อย่าเพิ่งท้อ ฝึกฝนใหม่อีกครั้งนะครับ!
+          `;
+          this.startLevel(1, false);
+        }
+
+        this.showModal(this.penaltyModal);
+      }
+
+      showLevelClearModal() {
+        const nextLv = this.currentLevel + 1;
+        const modalBody = document.getElementById('level-clear-content');
+        if (nextLv <= 10) {
+          modalBody.innerHTML = `
+            🎉 <strong>ยอดเยี่ยมมาก! คุณผ่าน Level ${this.currentLevel} ครบทั้ง 3 ข้อแล้ว!</strong><br><br>
+            ด่านถัดไป: <strong>Level ${nextLv}: ${LEVEL_CONFIG[nextLv - 1].name}</strong><br>
+            ${LEVEL_CONFIG[nextLv - 1].desc}
+          `;
+        } else {
+          modalBody.innerHTML = `
+            🏆 <strong>ขอแสดงความยินดีด้วย! คุณพิชิตครบทั้ง 10 ระดับความยากของ A-Math Bingo Mastery!</strong><br><br>
+            คุณคือเซียนเอแมทตัวจริงที่มีทักษะการคำนวณ การจัดสมการดุลยภาพ และตรรกะคณิตศาสตร์ที่ยอดเยี่ยมที่สุด!
+          `;
+        }
+        this.showModal(this.levelClearModal);
+      }
+
+      advanceToNextLevel() {
+        if (this.currentLevel < 10) {
+          this.startLevel(this.currentLevel + 1);
+        } else {
+          // Master loop: restart level 10 with new pool
+          this.startLevel(10);
+        }
+      }
+
+      confirmRestartGame() {
+        this.hideModal(this.restartModal);
+        this.startLevel(1);
+        sfx.place();
+        this.setFeedback("default", "เริ่มเกมใหม่", "รีเซ็ตการเล่นกลับมาที่ Level 1 เรียบร้อยแล้ว (สถิติเลเวลสูงสุดยังคงอยู่)", "");
+      }
+
+      openStatsModal() {
+        const content = document.getElementById('stats-modal-content');
+        const totalAttempts = this.totalBingos + this.totalWrongs;
+        const accuracy = totalAttempts > 0 ? Math.round((this.totalBingos / totalAttempts) * 100) : 100;
+
+        content.innerHTML = `
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+            <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #334155;">
+              <div style="color: #94a3b8; font-size: 11px;">เลเวลสูงสุดที่เคยปลดล็อก</div>
+              <div style="color: #f59e0b; font-size: 20px; font-weight: 800;">Level ${this.highestLevel}</div>
+            </div>
+            <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #334155;">
+              <div style="color: #94a3b8; font-size: 11px;">อัตราความแม่นยำ (Win Rate)</div>
+              <div style="color: #10b981; font-size: 20px; font-weight: 800;">${accuracy}%</div>
+            </div>
+            <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #334155;">
+              <div style="color: #94a3b8; font-size: 11px;">จำนวนบิงโกถูกต้องทั้งหมด</div>
+              <div style="color: #38bdf8; font-size: 20px; font-weight: 800;">${this.totalBingos} ข้อ</div>
+            </div>
+            <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #334155;">
+              <div style="color: #94a3b8; font-size: 11px;">จำนวนครั้งที่ตอบผิดสะสม</div>
+              <div style="color: #f87171; font-size: 20px; font-weight: 800;">${this.totalWrongs} ครั้ง</div>
+            </div>
+          </div>
+          <div style="font-size: 12px; color: #94a3b8; line-height: 1.4;">
+            💡 ข้อมูลสถิติถูกบันทึกลงในหน่วยความจำเครื่อง (LocalStorage) อย่างถาวร แม้ปิดเบราว์เซอร์หรือรีเซ็ตเริ่มเกมใหม่ สถิติเลเวลสูงสุดของคุณจะไม่สูญหาย
+          </div>
+        `;
+        this.showModal(this.statsModal);
+      }
+
+      setFeedback(type, title, msg, advice) {
+        this.feedbackBox.className = 'feedback-box ' + (type === 'default' ? '' : type);
+        this.feedbackTitle.className = 'feedback-title ' + (type === 'default' ? '' : type);
+        this.feedbackTitle.innerHTML = (type === 'success' ? '🎉 ' : (type === 'error' ? '❌ ' : (type === 'warning' ? '⚠️ ' : '💡 '))) + title;
+        this.feedbackMsg.textContent = msg;
+
+        if (advice && advice.trim().length > 0) {
+          this.feedbackAdvice.style.display = 'block';
+          this.feedbackAdvice.textContent = advice;
+        } else {
+          this.feedbackAdvice.style.display = 'none';
+        }
+      }
+
+      showModal(el) {
+        el.classList.add('active');
+      }
+
+      hideModal(el) {
+        el.classList.remove('active');
+      }
+    }
+
+    // Initialize application when DOM is ready
+    window.addEventListener('DOMContentLoaded', () => {
+      window.gameApp = new GameApp();
+    });
+  </script>
+</body>
+</html>

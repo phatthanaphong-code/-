@@ -1,0 +1,6 @@
+{
+  "name": "A-Math Bingo",
+  "description": "A-Math Bingo Mastery - Mobile & Random Pool Edition with 10 levels, dynamic math engine, diagnostic feedback, and penalty system.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
